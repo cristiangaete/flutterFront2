@@ -1,7 +1,11 @@
-import 'dart:convert';
+
+
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_application_1/services/task_services.dart';
+
+import '../model/taskModel.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +15,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<dynamic> tasks = [];
+  List<TaskModel> tasks = [];
+
+  @override
+  void initState(){
+    super.initState();
+    fetchUsers();
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -23,30 +34,26 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: tasks.length,
           itemBuilder: (context, index) {
             final task = tasks[index];
-            final title = task['title'];
-            final description = task['description'];
+            final title = task.title;
+            final description = task.description;
             return ListTile(
               leading: CircleAvatar(child: Text('${index + 1}')),
-              title: Text(title),
-              subtitle: Text(description),
+              title: Text(title!),
+              subtitle: Text(description!),
             );
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: fetchUsers,
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: fetchUsers,
+      // ),
     );
   }
 
-  void fetchUsers() async {
-    print("llamada al servicio");
-    const url = 'http://localhost:5000/tasks';
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    final body = response.body;
-    final json = jsonDecode(body);
-    setState(() {
-      tasks = json['tasks'];
-    });
-    print('datos listos');
+  Future<void> fetchUsers() async {
+   final response = await TaskService.fetchUsers();
+   setState(() {
+     tasks = response;
+   });
   }
+
+  
 }
